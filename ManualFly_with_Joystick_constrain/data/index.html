@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quadcopter Controller</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+      }
+      #container {
+        display: flex;
+        justify-content: center;
+        gap: 50px;
+      }
+      .joystickContainer {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        border: 2px solid #ccc;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .joystickHandle {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background-color: #007bff;
+        border-radius: 50%;
+        cursor: grab;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      #readout,
+      #motorSpeed {
+        margin-top: 20px;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Quadcopter Controller</h1>
+    <div id="container">
+      <!-- Left Joystick (Throttle & Yaw) -->
+      <div id="joystickThrottleYaw" class="joystickContainer">
+        <div id="handleThrottleYaw" class="joystickHandle"></div>
+      </div>
+      <!-- Right Joystick (Pitch & Roll) -->
+      <div id="joystickPitchRoll" class="joystickContainer">
+        <div id="handlePitchRoll" class="joystickHandle"></div>
+      </div>
+    </div>
+
+    <div id="readout">
+      Roll: <span id="rollValue">500</span>, Pitch:
+      <span id="pitchValue">500</span>, Throttle:
+      <span id="throttleValue">1500</span>, Yaw: <span id="yawValue">500</span>
+    </div>
+
+    <h2>Motor Speeds</h2>
+    <div id="motorSpeed">
+      M1: <span id="m1Speed">1000</span>, M2: <span id="m2Speed">1000</span>,
+      M3: <span id="m3Speed">1000</span>, M4: <span id="m4Speed">1000</span>
+    </div>
+    <div class="kill-switch">
+      <label> <input type="checkbox" id="killSwitch" /> Kill Switch </label>
+    </div>
+    <script>
+      let roll = 500,
+        pitch = 500,
+        throttle = 1500,
+        yaw = 500;
+      let throttleUpdated = false;
+      let defaultThrottle = 1500,
+        defaultYaw = 500,
+        defaultRoll = 500,
+        defaultPitch = 500;
+      function setupJoystick(
+        joystickId,
+        handleId,
+        callback,
+        autoResetX,
+        autoResetY
+      ) {
+        const joystick = document.getElementById(joystickId);
+        const handle = document.getElementById(handleId);
+        let isDragging = false;
+
+        joystick.addEventListener("mousedown", () => {
+          isDragging = true;
+          handle.style.cursor = "grabbing";
+        });
+
+        document.addEventListener("mouseup", () => {
+          if (!isDragging) return;
+          isDragging = false;
+          handle.style.cursor = "grab";
+          resetJoystick(); // Reset only specified axis
+        });
+
+        document.addEventListener("mousemove", (e) => {
+          if (!isDragging) return;
+          const rect = joystick.getBoundingClientRect();
+          let x = e.clientX - rect.left;
+          let y = e.clientY - rect.top;
+
+          const centerX = joystick.offsetWidth / 2;
+          const centerY = joystick.offsetHeight / 2;
+          let deltaX = x - centerX;
+          let deltaY = y - centerY;
+
+          const maxDistance = joystick.offsetWidth / 2 - handle.offsetWidth / 2;
+          const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+          // Lock movement to one axis at a time
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            deltaY = 0; // Lock vertical movement
+            if (joystickId === "joystickPitchRoll") pitch = defaultPitch; // Reset Pitch when moving Roll
+          } else {
+            deltaX = 0; // Lock horizontal movement
+            if (joystickId === "joystickPitchRoll") roll = defaultRoll; // Reset Roll when moving Pitch
+          }
+
+          if (distance > maxDistance) {
+            deltaX = (deltaX / distance) * maxDistance;
+            deltaY = (deltaY / distance) * maxDistance;
+          }
+
+          handle.style.left = `${centerX + deltaX}px`;
+          handle.style.top = `${centerY + deltaY}px`;
+
+          callback(deltaX, deltaY, maxDistance);
+        });
+
+        function resetJoystick() {
+          if (autoResetX) {
+            handle.style.left = "50%";
+            if (joystickId === "joystickThrottleYaw") yaw = defaultYaw; // Reset Yaw
+            if (joystickId === "joystickPitchRoll") roll = defaultRoll; // Reset Roll
+          }
+          if (autoResetY) {
+            handle.style.top = "50%";
+            if (joystickId === "joystickPitchRoll") pitch = defaultPitch; // Reset Pitch
+          }
+          updateReadout();
+        }
+      }
+
+      setupJoystick(
+        "joystickThrottleYaw",
+        "handleThrottleYaw",
+        (dx, dy, maxDist) => {
+          if (dx !== 0) {
+            yaw = Math.round(defaultYaw + (dx / maxDist) * 500);
+          }
+          if (dy !== 0) {
+            // ✅ Map throttle from lowest position (dy = maxDist) to 0, and highest (dy = -maxDist) to 2000
+            throttle = Math.round(
+              2000 - ((dy + maxDist) / (2 * maxDist)) * 2000
+            );
+          }
+          updateReadout();
+        },
+        true, // ✅ Auto-reset X (Yaw)
+        false // ❌ Do NOT auto-reset Y (Throttle)
+      );
+
+      // Setup Right Joystick: Controls **Pitch (Y) & Roll (X)**
+      setupJoystick(
+        "joystickPitchRoll",
+        "handlePitchRoll",
+        (dx, dy, maxDist) => {
+          if (dx !== 0) {
+            roll = Math.round(defaultRoll + (dx / maxDist) * 500);
+            pitch = defaultPitch; // ✅ Reset Pitch when moving Roll
+          }
+          if (dy !== 0) {
+            pitch = Math.round(defaultPitch - (dy / maxDist) * 500);
+            roll = defaultRoll; // ✅ Reset Roll when moving Pitch
+          }
+          updateReadout();
+        },
+        true, // ✅ Auto-reset X (Roll)
+        true // ✅ Auto-reset Y (Pitch)
+      );
+      document
+        .getElementById("killSwitch")
+        .addEventListener("change", function () {
+          if (this.checked) {
+            fetch("/kill")
+              .then(() => {
+                document.getElementById("m1Speed").textContent = "0";
+                document.getElementById("m2Speed").textContent = "0";
+                document.getElementById("m3Speed").textContent = "0";
+                document.getElementById("m4Speed").textContent = "0";
+              })
+              .catch((error) =>
+                console.error("Error sending kill command:", error)
+              );
+          }
+        });
+      // Function to update UI
+      function updateReadout() {
+        document.getElementById("rollValue").textContent = roll;
+        document.getElementById("pitchValue").textContent = pitch;
+        document.getElementById("throttleValue").textContent = throttle;
+        document.getElementById("yawValue").textContent = yaw;
+        throttleUpdated = true;
+      }
+      function sendJoystickData() {
+        const esp32IP = window.location.hostname;
+        const url = `http://${esp32IP}/joystick?roll=${roll}&pitch=${pitch}&throttle=${throttle}&yaw=${yaw}`;
+        fetch(url).catch((error) =>
+          console.error("Error sending data:", error)
+        );
+      }
+
+      // Fetch motor speeds from ESP32
+      function fetchMotorSpeeds() {
+        fetch("/motorspeed")
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("m1Speed").textContent = data.m1;
+            document.getElementById("m2Speed").textContent = data.m2;
+            document.getElementById("m3Speed").textContent = data.m3;
+            document.getElementById("m4Speed").textContent = data.m4;
+          })
+          .catch((error) =>
+            console.error("Error fetching motor speeds:", error)
+          );
+      }
+
+      // Continuously send throttle data every 100ms if updated
+      setInterval(() => {
+        if (throttleUpdated) {
+          sendJoystickData();
+          throttleUpdated = false;
+        }
+      },100);
+      setInterval(fetchMotorSpeeds, 100);
+    </script>
+  </body>
+</html>

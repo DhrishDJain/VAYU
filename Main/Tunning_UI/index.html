@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quadcopter Controller</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="js" href="script.js" />
+  </head>
+  <body>
+    <h1>Quadcopter Controller</h1>
+    <div id="container">
+      <!-- Left Joystick (Throttle & Yaw) -->
+      <div id="joystickThrottleYaw" class="joystickContainer">
+        <div id="handleThrottleYaw" class="joystickHandle"></div>
+      </div>
+      <!-- Right Joystick (Pitch & Roll) -->
+      <div id="joystickPitchRoll" class="joystickContainer">
+        <div id="handlePitchRoll" class="joystickHandle"></div>
+      </div>
+    </div>
+
+    <div id="readout">
+      Roll: <span id="rollValue">500</span>, Pitch:
+      <span id="pitchValue">500</span>, Throttle:
+      <span id="throttleValue">1500</span>, Yaw: <span id="yawValue">500</span>
+    </div>
+
+    <h2>Motor Speeds</h2>
+    <div id="motorSpeed">
+      M1: <span id="m1Speed">1000</span>, M2: <span id="m2Speed">1000</span>,
+      M3: <span id="m3Speed">1000</span>, M4: <span id="m4Speed">1000</span>
+    </div>
+    <div class="kill-switch">
+      <label> <input type="checkbox" id="killSwitch" /> Kill Switch </label>
+    </div>
+    <script src="script.js"></script>
+
+    <form action="/get" target="hidden-form">
+      <br />
+      ESP32 Webserver for PID Gain value tuning of Quadcopter
+    </form>
+    <br />
+    <form action="/get" target="hidden-form">
+      P Pitch & Roll Gain (current value %pGain%):
+      <input type="number" step="any" name="pGain" />
+      <input type="submit" value="Submit" onclick="submitMessage()" />
+    </form>
+    <br />
+    <form action="/get" target="hidden-form">
+      I Pitch & Roll Gain (current value %iGain%):
+      <input type="number" step="any" name="iGain" />
+      <input type="submit" value="Submit" onclick="submitMessage()" />
+    </form>
+    <br />
+    <form action="/get" target="hidden-form">
+      D Pitch & Roll Gain (current value %dGain%):
+      <input type="number" step="any" name="dGain" />
+      <input type="submit" value="Submit" onclick="submitMessage()" />
+    </form>
+    <br />
+    <form action="/get" target="hidden-form">
+      P Pitch & Roll Angle Gain (current value %pAGain%):
+      <input type="number" step="any" name="pAGain" />
+      <input type="submit" value="Submit" onclick="submitMessage()" />
+    </form>
+    <br />
+    <form action="/get" target="hidden-form">
+      I Pitch & Roll Angle Gain (current value %iAGain%):
+      <input type="number" step="any" name="iAGain" />
+      <input type="submit" value="Submit" onclick="submitMessage()" />
+    </form>
+    <br />
+    <form action="/get" target="hidden-form">
+      D Pitch & Roll Angle Gain (current value %dAGain%):
+      <input type="number" step="any" name="dAGain" />
+      <input type="submit" value="Submit" onclick="submitMessage()" />
+    </form>
+    <br />
+    <form action="/get" target="hidden-form">
+      P Yaw Gain (current value %pYaw%):
+      <input type="number" step="any" name="pYaw" />
+      <input type="submit" value="Submit" onclick="submitMessage()" />
+    </form>
+    <br />
+    <form action="/get" target="hidden-form">
+      I Yaw Gain (current value %iYaw%):
+      <input type="number" step="any" name="iYaw" />
+      <input type="submit" value="Submit" onclick="submitMessage()" />
+    </form>
+    <br />
+    <form action="/get" target="hidden-form">
+      D Yaw Gain (current value %dYaw%):
+      <input type="number" step="any" name="dYaw" />
+      <input type="submit" value="Submit" onclick="submitMessage()" />
+    </form>
+    <br /><br />
+    <form action="/get" target="hidden-form">
+      Time cycle (current value %tc%):
+      <input type="number" step="any" name="tc" />
+      <input type="submit" value="Submit" onclick="submitMessage()" />
+    </form>
+    <br /><br />
+
+    <iframe style="display: none" name="hidden-form"></iframe>
+    <script>
+      function submitMessage() {
+        alert("Saved value to ESP LittleFS");
+        setTimeout(function () {
+          document.location.reload(false);
+        }, 500);
+      }
+    </script>
+  </body>
+</html>

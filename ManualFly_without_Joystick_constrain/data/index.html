@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quadcopter Controller</title>
+    <style>
+      body { font-family: sans-serif; text-align: center; }
+      #container { display: flex; justify-content: center; gap: 50px; }
+      .joystickContainer { 
+        position: relative; width: 200px; height: 200px; border: 2px solid #ccc; border-radius: 50%; 
+        display: flex; align-items: center; justify-content: center;
+      }
+      .joystickHandle { 
+        position: absolute; width: 50px; height: 50px; background-color: #007bff; border-radius: 50%;
+        cursor: grab; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      }
+      #readout { margin-top: 20px; }
+    </style>
+  </head>
+  <body>
+    <h1>Quadcopter Controller</h1>
+    <div id="container">
+      <div id="joystickThrottle" class="joystickContainer">
+        <div id="handleThrottle" class="joystickHandle"></div>
+      </div>
+      <div id="joystickYawPitch" class="joystickContainer">
+        <div id="handleYawPitch" class="joystickHandle"></div>
+      </div>
+    </div>
+    <div id="readout">Roll: <span id="rollValue">500</span>, Pitch: <span id="pitchValue">500</span>, Throttle: <span id="throttleValue">1000</span>, Yaw: <span id="yawValue">500</span></div>
+    
+    <script>
+      function setupJoystick(joystickId, handleId, callback, autoCenter = true) {
+        const joystick = document.getElementById(joystickId);
+        const handle = document.getElementById(handleId);
+        let isDragging = false;
+
+        joystick.addEventListener("mousedown", (e) => {
+          isDragging = true;
+          handle.style.cursor = "grabbing";
+        });
+
+        document.addEventListener("mouseup", () => {
+          isDragging = false;
+          handle.style.cursor = "grab";
+          if (autoCenter) resetJoystick();
+        });
+
+        document.addEventListener("mousemove", (e) => {
+          if (!isDragging) return;
+          const rect = joystick.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          const centerX = joystick.offsetWidth / 2;
+          const centerY = joystick.offsetHeight / 2;
+          let deltaX = x - centerX;
+          let deltaY = y - centerY;
+
+          const maxDistance = joystick.offsetWidth / 2 - handle.offsetWidth / 2;
+          const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+          if (distance > maxDistance) {
+            deltaX = (deltaX / distance) * maxDistance;
+            deltaY = (deltaY / distance) * maxDistance;
+          }
+
+          handle.style.left = `${centerX + deltaX}px`;
+          handle.style.top = `${centerY + deltaY}px`;
+
+          callback(deltaX, deltaY, maxDistance);
+        });
+
+        function resetJoystick() {
+          handle.style.left = "50%";
+          handle.style.top = "50%";
+          callback(0, 0, joystick.offsetWidth / 2 - handle.offsetWidth / 2);
+        }
+      }
+
+      function updateReadout(roll, pitch, throttle, yaw) {
+        document.getElementById("rollValue").textContent = roll;
+        document.getElementById("pitchValue").textContent = pitch;
+        document.getElementById("throttleValue").textContent = throttle;
+        document.getElementById("yawValue").textContent = yaw;
+      }
+
+      function sendJoystickData(roll, pitch, throttle, yaw) {
+        const esp32IP = window.location.hostname;
+        const url = `http://${esp32IP}/joystick?roll=${roll}&pitch=${pitch}&throttle=${throttle}&yaw=${yaw}`;
+        fetch(url).catch((error) => console.error("Error sending data:", error));
+      }
+
+      let roll = 500, pitch = 500, throttle = 1000, yaw = 500;
+
+      setupJoystick("joystickThrottle", "handleThrottle", (dx, dy, maxDist) => {
+        throttle = Math.round(1000 + (dy / maxDist) * 1000);
+        sendJoystickData(roll, pitch, throttle, yaw);
+        updateReadout(roll, pitch, throttle, yaw);
+      }, false); // Throttle should NOT auto-center
+
+      setupJoystick("joystickYawPitch", "handleYawPitch", (dx, dy, maxDist) => {
+        yaw = Math.round(500 + (dx / maxDist) * 500);
+        pitch = Math.round(500 - (dy / maxDist) * 500);
+        sendJoystickData(roll, pitch, throttle, yaw);
+        updateReadout(roll, pitch, throttle, yaw);
+      });
+    </script>
+  </body>
+</html>

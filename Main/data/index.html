@@ -1,0 +1,93 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Control</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="js" href="script1.js" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="app-title">Vayu</div>
+        <div class="status-indicator">
+          <span class="status-light"></span>
+          <span>Connected</span>
+          <div class="signal-strength">
+            <div class="signal-bar"></div>
+            <div class="signal-bar"></div>
+            <div class="signal-bar"></div>
+            <div class="signal-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <div class="controls">
+          <div id="joystickThrottleYaw" class="joystickContainer">
+            <div class="joystick-base"><div class="glow"></div></div>
+            <div id="handleThrottleYaw" class="joystickHandle"></div>
+            <div class="joystick-label">THROTTLE / YAW</div>
+          </div>
+          <div class="camera-feed">
+            <div class="camera-feed-text">Live Stream</div>
+            <div class="stream-status">
+              <div class="status-dot"></div>
+              <span class="status-text">Connecting...</span>
+            </div>
+            <div id="mjpeg-container" class="camera-img"></div>
+            <button class="camera-toggle" id="stream-toggle">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2
+                0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                ></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+            </button>
+          </div>
+          <div id="joystickPitchRoll" class="joystickContainer">
+            <div class="joystick-base"><div class="glow"></div></div>
+            <div id="handlePitchRoll" class="joystickHandle"></div>
+            <div class="joystick-label">PITCH / ROLL</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="readings-container">
+        <div class="readings-title">TELEMETRY DATA</div>
+        <div class="readings-data">
+          <div class="reading-item">
+            <div class="reading-label">BATTERY</div>
+            <div class="reading-value battery-level">87%</div>
+          </div>
+          <div class="reading-item">
+            <div class="reading-label">Throttle</div>
+            <div class="reading-value throttleValue">0%</div>
+          </div>
+          <div class="reading-item">
+            <div class="reading-label">DISTANCE</div>
+            <div class="reading-value distance-value">0 m</div>
+          </div>
+          <div class="reading-item">
+            <div class="reading-label">ALTITUDE</div>
+            <div class="reading-value altitude-value">0m</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script1.js"></script>
+  </body>
+</html>

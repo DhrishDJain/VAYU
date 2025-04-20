@@ -1,0 +1,314 @@
+/* style.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Arial", sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 0 10px;
+}
+
+.app-title {
+  font-size: 28px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #a5b4fc;
+  background: rgba(78, 84, 200, 0.1);
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: 1px solid rgba(78, 84, 200, 0.3);
+}
+
+.status-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+  margin-right: 8px;
+  box-shadow: 0 0 10px rgba(67, 206, 162, 0.7);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(67, 206, 162, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(67, 206, 162, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(67, 206, 162, 0);
+  }
+}
+
+.signal-strength {
+  display: flex;
+  align-items: flex-end;
+  height: 15px;
+  gap: 2px;
+  margin-left: 15px;
+}
+
+.signal-bar {
+  width: 5px;
+  background-color: #43cea2;
+  border-radius: 1px;
+  opacity: 0.3;
+}
+
+.signal-bar:nth-child(1) {
+  height: 30%;
+}
+.signal-bar:nth-child(2) {
+  height: 50%;
+}
+.signal-bar:nth-child(3) {
+  height: 70%;
+}
+.signal-bar:nth-child(4) {
+  height: 100%;
+}
+
+.controls-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px;
+}
+
+.joystickContainer {
+  position: relative;
+  width: 180px;
+  height: 180px;
+}
+
+.joystick-base {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #242448 0%, #1a1a2e 100%);
+  border: 2px solid #4b6cb7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(78, 84, 200, 0.2) 0%,
+    rgba(78, 84, 200, 0) 70%
+  );
+  pointer-events: none;
+}
+
+.joystickHandle {
+  width: 40%;
+  height: 40%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+  border: 2px solid #8f94fb;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  z-index: 5;
+  touch-action: none;
+}
+
+.joystick-label {
+  position: absolute;
+  bottom: -35px;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  color: #8f94fb;
+  font-weight: bold;
+}
+
+.control-label {
+  font-size: 12px;
+  color: #a5b4fc;
+  text-align: center;
+  margin-top: 8px;
+}
+.camera-feed {
+  background: linear-gradient(180deg, #1f1f3a 0%, #141432 100%);
+  border-radius: 15px;
+  border: 2px solid #4e54c8;
+  height: 40vh;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(78, 84, 200, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.camera-feed img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+.camera-feed.active img {
+  display: block;
+}
+.camera-feed-text {
+  font-size: 24px;
+  color: #8f94fb;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.camera-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+  z-index: 10;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+.camera-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(78, 84, 200, 0.5);
+}
+.readings-container {
+  background: linear-gradient(180deg, #1f1f3a 0%, #141432 100%);
+  border-radius: 15px;
+  border: 2px solid #4b6cb7;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  margin-top: 50px;
+}
+
+.readings-title {
+  text-align: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #4b6cb7;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.readings-data {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.reading-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.reading-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: -7.5px;
+  top: 10%;
+  height: 80%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, #4b6cb7, transparent);
+}
+
+.reading-label {
+  font-size: 12px;
+  color: #8f94fb;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.reading-value {
+  font-size: 18px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.battery-level.warning {
+  background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+}
+
+.battery-level.critical {
+  background: linear-gradient(135deg, #f5515f 0%, #9f041b 100%);
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: center;
+    gap: 50px;
+  }
+  .joystick-container {
+    width: 150px;
+    height: 150px;
+  }
+}

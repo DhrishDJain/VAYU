@@ -1,0 +1,36 @@
+body {
+  font-family: sans-serif;
+  text-align: center;
+  user-select: none;
+}
+#container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+}
+.joystickContainer {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.joystickHandle {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-color: #007bff;
+  border-radius: 50%;
+  cursor: grab;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#readout,
+#motorSpeed {
+  margin-top: 20px;
+  font-size: 18px;
+}
