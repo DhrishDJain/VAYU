@@ -10,7 +10,7 @@
   </head>
   <body>
     <div class="container">
-      <div class="header">
+      <!-- <div class="header">
         <div class="app-title">Vayu</div>
         <div class="status-indicator">
           <span class="status-light"></span>
@@ -22,7 +22,7 @@
             <div class="signal-bar"></div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div class="controls-row">
         <div class="controls">
@@ -64,8 +64,85 @@
           </div>
         </div>
       </div>
+      <br />
+      <script>
+        function togglePopup() {
+          const popup = document.getElementById("popupMenu");
+          popup.style.display =
+            popup.style.display === "block" ? "none" : "block";
+        }
+      </script>
 
-      <div class="readings-container">
+      <button id="openMenuButton" onclick="togglePopup()">Open Menu</button>
+      <div id="popupMenu">
+        <form action="/get" target="hidden-form">
+          P Pitch & Roll Gain (current value
+          <span class="current-value">%pGain%</span>):
+          <input type="number" step="any" name="PRatePitch" style="width: 50px" required/>
+          <input type="submit" value="Submit" onclick="submitMessage()" />
+        </form>
+        <form action="/get" target="hidden-form">
+          I Pitch & Roll Gain (current value
+          <span class="current-value">%iGain%</span>):
+          <input type="number" step="any" name="IRatePitch" style="width: 50px" required/>
+          <input type="submit" value="Submit" onclick="submitMessage()" />
+        </form>
+        <form action="/get" target="hidden-form">
+          D Pitch & Roll Gain (current value
+          <span class="current-value">%dGain%</span>):
+          <input type="number" step="any" name="DRatePitch" style="width: 50px" required/>
+          <input type="submit" value="Submit" onclick="submitMessage()" />
+        </form>
+        <form action="/get" target="hidden-form">
+          P Pitch & Roll Angle Gain (current value
+          <span class="current-value">%pAGain%</span>):
+          <input type="number" step="any" name="PAngleRoll" style="width: 50px" required/>
+          <input type="submit" value="Submit" onclick="submitMessage()" />
+        </form>
+        <form action="/get" target="hidden-form">
+          I Pitch & Roll Angle Gain (current value
+          <span class="current-value">%iAGain%</span>):
+          <input type="number" step="any" name="IAngleRoll" style="width: 50px" required/>
+          <input type="submit" value="Submit" onclick="submitMessage()" />
+        </form>
+        <form action="/get" target="hidden-form">
+          D Pitch & Roll Angle Gain (current value
+          <span class="current-value">%dAGain%</span>):
+          <input type="number" step="any" name="DAngleRoll" style="width: 50px" required/>
+          <input type="submit" value="Submit" onclick="submitMessage()" />
+        </form>
+        <form action="/get" target="hidden-form">
+          P Yaw Gain (current value <span class="current-value">%pYaw%</span>):
+          <input type="number" step="any" name="PRateYaw" style="width: 50px" required/>
+          <input type="submit" value="Submit" onclick="submitMessage()" />
+        </form>
+        <form action="/get" target="hidden-form">
+          I Yaw Gain (current value <span class="current-value">%iYaw%</span>):
+          <input type="number" step="any" name="IRateYaw" style="width: 50px" required/>
+          <input type="submit" value="Submit" onclick="submitMessage()" />
+        </form>
+        <form action="/get" target="hidden-form">
+          D Yaw Gain (current value <span class="current-value">%dYaw%</span>):
+          <input type="number" step="any" name="DRateYaw" style="width: 50px" required/>
+          <input type="submit" value="Submit" onclick="submitMessage()" />
+        </form>
+        <form action="/get" target="hidden-form">
+          Time cycle (current value <span class="current-value">%tc%</span>):
+          <input type="number" step="any" name="tc" style="width: 50px" />
+          <input type="submit" value="Submit" onclick="submitMessage()" />
+        </form>
+      </div>
+      <iframe style="display: none" name="hidden-form"></iframe>
+
+      <script>
+        function submitMessage() {
+          alert("Saved value to ESP LittleFS");
+          // setTimeout(function () {
+          //   document.location.reload(false);
+          // }, 500);
+        }
+      </script>
+      <!-- <div class="readings-container">
         <div class="readings-title">TELEMETRY DATA</div>
         <div class="readings-data">
           <div class="reading-item">
@@ -85,7 +162,7 @@
             <div class="reading-value altitude-value">0m</div>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <script src="script1.js"></script>

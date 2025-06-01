@@ -82,7 +82,7 @@ function setupJoystick(joystickId, handleId, callback, autoResetX, autoResetY) {
       deltaX = (deltaX / distance) * maxDistance;
       deltaY = (deltaY / distance) * maxDistance;
     }
-
+    console.log("deltaX : ", deltaX, "deltaY : ", deltaY);
     handle.style.left = `${centerX + deltaX}px`;
     handle.style.top = `${centerY + deltaY}px`;
 

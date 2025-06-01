@@ -28,16 +28,27 @@ connction.onmessage = (event) => {
     return;
   }
   const data = JSON.parse(event.data);
-  document.getElementById("rollValue").textContent = data["roll"];
-  document.getElementById("pitchValue").textContent = data["pitch"];
-  document.getElementById("throttleValue").textContent = data["throttle"];
-  document.getElementById("yawValue").textContent = data["yaw"];
-  document.getElementById("m1Speed").textContent = data["m1"];
-  document.getElementById("m2Speed").textContent = data["m2"];
-  document.getElementById("m3Speed").textContent = data["m3"];
-  document.getElementById("m4Speed").textContent = data["m4"];
-  throttleUpdated = true;
+  if (data[0]["action"] == "GAIN SET") {
+    document.querySelectorAll("form").forEach((form) => {
+      const inputName = form.querySelector('input[type="number"]').name;
+      const currentValueSpan = form.querySelector(".current-value");
+      if (data[0][inputName] !== undefined) {
+        currentValueSpan.textContent = data[0][inputName];
+      }
+    });
+  }
+  console.log(data);
 };
+// document.getElementById("rollValue").textContent = data["roll"];
+// document.getElementById("pitchValue").textContent = data["pitch"];
+// document.getElementById("throttleValue").textContent = data["throttle"];
+// document.getElementById("yawValue").textContent = data["yaw"];
+// document.getElementById("m1Speed").textContent = data["m1"];
+// document.getElementById("m2Speed").textContent = data["m2"];
+// document.getElementById("m3Speed").textContent = data["m3"];
+// document.getElementById("m4Speed").textContent = data["m4"];
+// throttleUpdated = true;
+// if
 
 class CameraStream {
   constructor() {
@@ -116,6 +127,32 @@ document.addEventListener("DOMContentLoaded", () => {
     feedText.style.display = cameraActive ? "none" : "block";
   });
 
+  // let lastSend = 0;
+  function sendJoystickData() {
+    // const now = Date.now();
+    // if (now - lastSend < 33) return; // 30Hz limit
+    // lastSend = now;
+    if (connction.readyState === WebSocket.OPEN) {
+      connction.send(
+        JSON.stringify({
+          action: "JoystickData",
+          throttle: throttle,
+          pitch: pitch,
+          roll: roll,
+          yaw: yaw,
+        })
+      );
+      console.log(
+        JSON.stringify({
+          action: "JoystickData",
+          throttle: throttle,
+          pitch: pitch,
+          roll: roll,
+          yaw: yaw,
+        })
+      );
+    }
+  }
   function setupJoystick(
     joystickId,
     handleId,
@@ -137,6 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isDragging = false;
       handle.style.cursor = "grab";
       resetJoystick(); // Reset only specified axis
+      sendJoystickData();
     });
 
     document.addEventListener("pointermove", (e) => {
@@ -169,8 +207,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       handle.style.left = `${centerX + deltaX}px`;
       handle.style.top = `${centerY + deltaY}px`;
-      console.log(deltaY);
+      // console.log("deltaX : ", deltaX, "deltaY : ", deltaY);
       callback(deltaX, deltaY, maxDistance);
+      sendJoystickData();
     });
 
     function resetJoystick() {
@@ -183,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
         handle.style.top = "50%";
         if (joystickId === "joystickPitchRoll") pitch = defaultPitch; // Reset Pitch
       }
-      updateReadout();
+      // updateReadout();
     }
   }
 
@@ -192,14 +231,17 @@ document.addEventListener("DOMContentLoaded", () => {
     "handleThrottleYaw",
     (dx, dy, maxDist) => {
       if (dx !== 0) {
-        yaw = Math.round(defaultYaw + (dx / maxDist) * 500);
+        yaw = Math.round(
+          dx === maxDist
+            ? 500
+            : dx === -maxDist
+            ? -500
+            : defaultYaw + (dx / maxDist) * 500
+        );
       }
       if (dy !== 0) {
-        // ✅ Map throttle from lowest position (dy = maxDist) to 0, and highest (dy = -maxDist) to 2000
         throttle = Math.round(1000 + ((maxDist - dy) / (2 * maxDist)) * 1000);
       }
-      // console.log(throttle);
-      updateReadout(); // Update the readout with new values
     },
     true, // ✅ Auto-reset X (Yaw)
     false // ❌ Do NOT auto-reset Y (Throttle)
@@ -211,57 +253,78 @@ document.addEventListener("DOMContentLoaded", () => {
     "handlePitchRoll",
     (dx, dy, maxDist) => {
       if (dx !== 0) {
-        roll = Math.round((dx / maxDist) * 100); // Map -100 to 100
+        roll = Math.round(
+          dx === maxDist
+            ? 500
+            : dx === -maxDist
+            ? -500
+            : defaultRoll + (dx / maxDist) * 500
+        );
+        pitch = defaultPitch; // ✅ Reset Pitch when moving Roll
       }
       if (dy !== 0) {
-        pitch = Math.round((dy / maxDist) * 100); // Map -100 to 100
+        pitch = Math.round(
+          dy === maxDist
+            ? -500
+            : dy === -maxDist
+            ? 500
+            : defaultPitch - (dy / maxDist) * 500
+        );
+        roll = defaultRoll; // ✅ Reset Roll when moving Pitch
       }
-      updateReadout(); // Update the readout with new values
     },
     true, // ✅ Auto-reset X (Roll)
     true // ✅ Auto-reset Y (Pitch)
   );
-
-  function updateReadout() {
-    const throt = (((throttle - 1000) / 1000) * 100).toFixed(0);
-    document.querySelector(".throttleValue").textContent = `${throt}%`;
-  }
+  // function updateReadout() {
+  //   const throt = (((throttle - 1000) / 1000) * 100).toFixed(0);
+  //   document.querySelector(".throttleValue").textContent = `${throt}%`;
+  // }
 
   // Function to send the throttle value to the server
 
-  setInterval(function () {
-    // sendThrottleValue(throttle);
-    if (connction.readyState == 1) {
-      connction.send(
-        JSON.stringify({
-          action: "JoystickData",
-          throttle: throttle,
-          pitch: pitch,
-          roll: roll,
-          yaw: yaw,
-        })
-      );
-    }
-  }, 100);
+  // setInterval(function () {
+  //   // sendThrottleValue(throttle);
+  //   if (connction.readyState == 1) {
+  //     connction.send(
+  //       JSON.stringify({
+  //         action: "JoystickData",
+  //         throttle: throttle,
+  //         pitch: pitch,
+  //         roll: roll,
+  //         yaw: yaw,
+  //       })
+  //     );
+  //     console.log(
+  //       JSON.stringify({
+  //         action: "JoystickData",
+  //         throttle: throttle,
+  //         pitch: pitch,
+  //         roll: roll,
+  //         yaw: yaw,
+  //       })
+  //     );
+  //   }
+  // }, 1000);
 
-  // battery drain
-  let battery = 87;
-  const battDisp = document.querySelector(".battery-level");
-  setInterval(() => {
-    battery = battery < 0 ? 100 : battery - 0.1;
-    const lvl = Math.round(battery);
-    battDisp.textContent = `${lvl}%`;
-    battDisp.className =
-      "reading-value battery-level" +
-      (lvl < 20 ? " critical" : lvl < 40 ? " warning" : "");
-  }, 3000);
+  // // battery drain
+  // let battery = 87;
+  // const battDisp = document.querySelector(".battery-level");
+  // setInterval(() => {
+  //   battery = battery < 0 ? 100 : battery - 0.1;
+  //   const lvl = Math.round(battery);
+  //   battDisp.textContent = `${lvl}%`;
+  //   battDisp.className =
+  //     "reading-value battery-level" +
+  //     (lvl < 20 ? " critical" : lvl < 40 ? " warning" : "");
+  // }, 3000);
 
-  // random signal bars
-  setInterval(() => {
-    const bars = document.querySelectorAll(".signal-bar");
-    const active = Math.floor(Math.random() * 2) + 3;
-    bars.forEach((b, i) => (b.style.opacity = i < active ? "1" : "0.3"));
-  }, 5000);
+  // // random signal bars
+  // setInterval(() => {
+  //   const bars = document.querySelectorAll(".signal-bar");
+  //   const active = Math.floor(Math.random() * 2) + 3;
+  //   bars.forEach((b, i) => (b.style.opacity = i < active ? "1" : "0.3"));
+  // }, 5000);
 
   // reset on resize
   window.addEventListener("resize", () => {

@@ -174,7 +174,28 @@ body {
   color: #8f94fb;
   font-weight: bold;
 }
-
+#popupMenu {
+  display: none;
+  position: fixed;
+  background-color: black;
+  border: 1px solid #ccc;
+  width: 300px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  bottom: 40px; /* Adjust this value to position the menu above the button */
+  right: 10px;
+}
+#popupMenu form {
+  margin: 10px;
+}
+#openMenuButton {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  font-size: 12px;
+}
 .control-label {
   font-size: 12px;
   color: #a5b4fc;
